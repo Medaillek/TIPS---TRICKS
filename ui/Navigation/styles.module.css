@@ -1,0 +1,13 @@
+.navbar {
+    animation: followToggle var(--animation-duration, 0.2s) cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+@keyframes followToggle {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 5rem;
+    }
+}
