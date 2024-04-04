@@ -39,42 +39,45 @@ export function NextError(statusCode: number, errorMessage: string) {
 	)
 }
 
-type SuccessParseResult<T> = {
-	error: false
-	data: T
-	json: Record<string, unknown>
-}
+type BodyParseResult<T> =
+	| {
+			data: T
+			error: null
+	  }
+	| {
+			data: null
+			error: {
+				message: string
+				status: number
+			}
+	  }
 
-type ErrorParseResult = {
-	error: true
-	errorMessage: string
-	data: null
-}
-
-export type ParseResult<T> = SuccessParseResult<T> | ErrorParseResult
-
-export async function parseRequest<T extends ZodObject<any, any>>(
+export async function parseRequest<T extends z.ZodObject<any, any, any, any>>(
 	req: Request,
 	schema: T
-): Promise<ParseResult<z.infer<T>>> {
+): Promise<BodyParseResult<z.infer<typeof schema>>> {
 	try {
-		const rawJson = await req.json()
-		const parsed = schema.safeParse(rawJson)
-		if (parsed.success) {
+		const body = await req.json()
+		return {
+			data: schema.parse(body),
+			error: null,
+		}
+	} catch (e) {
+		if (e instanceof z.ZodError) {
 			return {
-				error: false,
-				data: parsed.data as z.infer<typeof schema>,
-				json: rawJson,
-			}
-		} else {
-			return {
-				error: true,
-				errorMessage: 'Invalid JSON',
 				data: null,
+				error: {
+					message: e.errors.map((err) => err.message).join(','),
+					status: 400,
+				},
 			}
 		}
-	} catch (error) {
-		console.error(error)
-		return { error: true, errorMessage: 'Invalid JSON', data: null }
+		return {
+			data: null,
+			error: {
+				message: 'Internal server error',
+				status: 500,
+			},
+		}
 	}
 }
