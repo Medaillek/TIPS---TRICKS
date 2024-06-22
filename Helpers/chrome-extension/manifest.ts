@@ -39,13 +39,6 @@ export default defineManifest((env) => {
 			'unlimitedStorage',
 		],
 		web_accessible_resources: [
-			defineDynamicResource({
-				matches: [
-					'https://www.maprimerenov.gouv.fr/*',
-					'https://auth.anah.fr/*',
-					'https://monprojet.anah.gouv.fr/*',
-				],
-			}),
 			defineDynamicResource({ matches: [process.env.VITE_WEBSITE_URL + '/*'] }),
 		],
 
