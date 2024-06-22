@@ -15,6 +15,9 @@ export function qsLight<T extends HTMLElement>(selector: string): T | null {
 	return document.querySelector<T>(selector)
 }
 
+/**
+* @description waits for an element to be present in the DOM (very usefull for chrome extensions)
+*/
 export function waitForElm<E extends Element>(selector: string): Promise<E> {
 	return new Promise((resolve) => {
 		if (document.querySelector<E>(selector)) {
